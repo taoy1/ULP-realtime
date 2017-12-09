@@ -1,0 +1,20 @@
+{
+	"//": "Sensor 1 reads data from ADC channel 6 at 33.3Hz",
+	"sensor 1": {
+		"interval_in_us": 20000,
+		"input": "ADC_6",
+		"op": "null"
+	},
+	"//": "Sensor 2 does nothing at 50Hz",
+	"sensor 2": {
+		"interval_in_us": 50000,
+		"input": "null",
+		"op": "null"
+	},
+	"//": "CPU prints data in Sensor 4's buffer collected during this period of CPU sleeping",
+	"CPU": {
+		"interval_in_us": 1000000,
+		"input": "sensor 1",
+		"op": "print"
+	}
+}
