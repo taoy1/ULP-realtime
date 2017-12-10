@@ -74,7 +74,7 @@ increment_step:
 	/*
 		step++;
 		if (step < n_clusters)
-			goto exit;
+			goto check_wake_up;
 		step = 0;
 	*/
 	move r1, step
@@ -82,13 +82,13 @@ increment_step:
 	add r0, r0, 1
 	st r0, r1, 0
 	sub r0, r0, n_clusters
-	jump exit, ov
+	jump check_wake_up, ov
 	st r0, r1, 0
 
 	/* Increment cycle
 		cycle++;
 		if (cycle < period)
-			goto exit;
+			goto check_wake_up;
 		cycle = 0;
 	*/
 	move r1, cycle
@@ -96,9 +96,12 @@ increment_step:
 	add r0, r0, 1
 	st r0, r1, 0
 	sub r0, r0, period
-	jump exit, ov
+	jump check_wake_up, ov
 	st r0, r1, 0
 
+/* ------------------ WAKE UP AND EXIT FUNCTIONS ------------------ */
+
+check_wake_up:
 	/*
 		if (need_wakeup == 0)
 			goto exit;
@@ -117,15 +120,15 @@ exit:
 	.global wake_up
 wake_up:
 
-/* reset need_wakeup */
-	move r0, need_wakeup
-	move r1, 0
-	st r1, r0, 0
-
 	/* Check if the system can be woken up */
 	READ_RTC_REG(RTC_CNTL_DIAG0_REG, 19, 1)
 	and r0, r0, 1
 	jump exit, eq
+
+	/* reset need_wakeup */
+	move r0, need_wakeup
+	move r1, 0
+	st r1, r0, 0
 
 	/* Wake up the SoC, end program */
 	wake

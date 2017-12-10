@@ -4,9 +4,11 @@ from fractions import gcd
 import operations
 
 ################ Constants ################
-ULP_no_work_runtime = 162
-pingpong_min_interval_us = 1000000
-
+ULP_no_work_runtime = 162 # As measured, the current template's nop running time is 162 microseconds
+pingpong_min_interval_us = 1000000 # If CPU cannot run too frequently too keep the timing correct
+instructions_1_cycle = ['add', 'sub', 'and', 'or', 'move', 'nop']
+instructions_2_cycle = ['ld', 'st']
+time_ALU = 4.622
 ################ Functions ################
 
 def lcm(a, b):
@@ -50,6 +52,90 @@ def generateProgram(config, clusters, char):
 						is_pingpong_buf[sensor])
 
 	return program
+
+def remove_comments(program):
+	offset = 0
+	ret = ""
+	while True:
+		nextS = program.find('/*', offset)
+		nextE = program.find('*/', offset)
+
+		if nextS < 0 and nextE < 0:
+			break
+
+		if nextE < nextS:
+			sys.exit("Error parsing the comments of this program:\r\n" + program)
+
+		next_nextS = program.find('/*', nextS+2)
+		if next_nextS != -1 and next_nextS < nextE:
+			sys.exit("Cannot parse comments in comments of this program:\r\n" + program)
+
+		ret += program[offset: nextS]
+		offset = nextE + 2
+
+	ret += program[offset:]
+	return ret
+
+def calculate_cycles(program, startline = 0):
+
+	program = remove_comments(program)
+	cnt = 0
+	lines = program.splitlines()
+	lines = [line.strip() for line in lines] # remove spaces in the beginning and the end
+
+	i = 0
+	for line in lines:
+		if i < startline:
+			i += 1
+			continue
+		i += 1
+		words = re.split('\s', line) # split into words
+		instruction = words[0].lower()
+		if instruction.endswith(":"):
+			continue
+		if instruction in instructions_1_cycle:
+			cnt += 1
+			continue
+		if instruction in instructions_2_cycle:
+			cnt += 2
+			continue
+		if instruction == "adc":
+			cnt += 16
+			continue
+		if instruction == "jump":
+			cnt += 1
+			m = re.search('jump ([^,^\s]+)\s*,\s*(.+)', line)
+			if m == None:
+				m = re.search('jump ([^\s]*)', line)
+				if m == None:
+					sys.exit("Error parsing jump: " + line)
+				else:
+					# Jump with no condition
+					label_name = m.group(1)
+					# Get label position
+					if not (label_name + ":") in lines:
+						sys.exit("Cannot find label: " + label_name)
+					label_pos = lines.index(label_name + ":")
+					# Calculate the cycles from that label
+					return cnt + calculate_cycles(program, label_pos)
+			else:
+				# Jump with condition
+				label_name = m.group(1)
+				# Get label position
+				if not (label_name + ":") in lines:
+					sys.exit("Cannot find label: " + label_name)
+				label_pos = lines.index(label_name + ":")
+				# Calculate the cycles from that label and from the next line,
+				# the two cycles are required to be the same
+
+				cycle_true = calculate_cycles(program, label_pos)
+				cycle_false = calculate_cycles(program, i)
+
+				if cycle_true != cycle_false:
+					sys.exit("Error: The codes after branch %s at line #%d do not have the same cycle numbers!"
+							 "Compensate the one with fewer cycles with nop." % (label_name, i))
+				return cnt + cycle_true
+	return cnt
 
 ################ Verifying configuration file ################
 
@@ -201,6 +287,7 @@ assembly_file.write(bss_string + "\r\n")
 # Write .text section
 last = 0;
 text = open('templates/text.S').read()
+cycles_cluster = {'a': 0, 'b': 0, 'c': 0, 'd': 0}
 for m in re.finditer('{{[^}]*}}', text):
 
 	assembly_file.write(text[last:m.start()])
@@ -215,6 +302,14 @@ for m in re.finditer('{{[^}]*}}', text):
 
 		if re.search('\[code\]', substr) != None:
 			program = generateProgram(config, clusters, char)
+			print(program)
+			cycles = calculate_cycles(program)
+			if cycles > 0:
+				print("--------------------------")
+				print("The number of cycles is %d" % cycles)
+				print("--------------------------")
+
+			cycles_cluster[char] += cycles
 			substr = re.sub('\[code\]', program, substr)
 
 		g += substr
@@ -251,12 +346,13 @@ for m in re.finditer('{{[^}]*}}', main):
 main_output += main[last:]
 main = main_output
 
+print("\r\nCycles of each cluster's execution code are:")
+pprint(cycles_cluster)
 sleep_period_0 = interval_cluster - ULP_no_work_runtime
-ULP_work_a_runtime = 167
-sleep_period_1 = interval_cluster - ULP_no_work_runtime - ULP_work_a_runtime
-sleep_period_2 = interval_cluster - ULP_no_work_runtime
-sleep_period_3 = interval_cluster - ULP_no_work_runtime
-sleep_period_4 = interval_cluster - ULP_no_work_runtime
+sleep_period_1 = int(round(interval_cluster - ULP_no_work_runtime - cycles_cluster['a'] * time_ALU))
+sleep_period_2 = int(round(interval_cluster - ULP_no_work_runtime - cycles_cluster['b'] * time_ALU))
+sleep_period_3 = int(round(interval_cluster - ULP_no_work_runtime - cycles_cluster['c'] * time_ALU))
+sleep_period_4 = int(round(interval_cluster - ULP_no_work_runtime - cycles_cluster['d'] * time_ALU))
 
 main = re.sub('\[sleep_period_0\]', str(sleep_period_0), main)
 main = re.sub('\[sleep_period_1\]', str(sleep_period_1), main)
@@ -268,3 +364,7 @@ main = re.sub('\[CPU_interval\]', str(config["CPU"]["interval_in_us"]), main)
 c_file = open('output/main.c', 'w')
 c_file.write(main)
 c_file.close()
+
+print("---------------------------------------------------------------")
+print("Program generated.")
+print("The generated files are output/main.c and output/ulp_realtime.S")

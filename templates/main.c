@@ -49,11 +49,17 @@ void start_ulptest()
     if (cause == ESP_SLEEP_WAKEUP_ULP) {
         printf("Pingpong buffer of current measurement is #%d\n", (ulp_pingpong & UINT16_MAX) == 1 ? 0 : 1);
         
-        printf("ULP did %d measurements since last reset\n", ulp_run_cnt_pp0 & UINT16_MAX);
-{{        printf("ULP did %d measurements since last reset\n", ulp_run_cnt_pp0_[x] & UINT16_MAX);}}
-
-        printf("ULP did %d measurements since last reset\n", ulp_run_cnt_pp1 & UINT16_MAX);
-{{        printf("ULP did %d measurements since last reset\n", ulp_run_cnt_pp1_[x] & UINT16_MAX);}}
+        if ((ulp_pingpong & UINT16_MAX) == 1) {
+            printf("Last measurement:\n");
+            printf("ULP ran %d times\n", ulp_run_cnt_pp0 & UINT16_MAX);
+{{          printf("Cluster [x] ran %d times\n", ulp_run_cnt_pp0_[x] & UINT16_MAX); }}
+            printf("Ongoing measurement has run %d times\n", ulp_run_cnt_pp1 & UINT16_MAX);
+        } else {
+            printf("Last measurement:\n");
+            printf("ULP ran %d times\n", ulp_run_cnt_pp1 & UINT16_MAX);
+{{          printf("Cluster [x] ran %d times\n", ulp_run_cnt_pp1_[x] & UINT16_MAX); }}
+            printf("Ongoing measurement has run %d times\n", ulp_run_cnt_pp0 & UINT16_MAX);
+        }
     }
 
     struct timeval tv;
@@ -65,6 +71,7 @@ void start_ulptest()
     {
         case ESP_SLEEP_WAKEUP_TIMER:
             trigger_reverse_wakeup_ulp_program();
+            printf("Completed one round of measurement\n");
             break;
         case ESP_SLEEP_WAKEUP_ULP:
 

@@ -56,7 +56,8 @@
 
 	/* if branch is true */
 [s]_sum_l1:
-	nop						/* 2 nops after the branch, keeping the */
+	nop						/* 3 nops after the branch, keeping the */
 	nop						/* number of instructions the same */
+	nop
 
 [s]_sum_end:

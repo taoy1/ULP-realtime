@@ -1,31 +1,25 @@
 {
-	"//": "Sensor 1 reads data from ADC channel 6 at 33.3Hz",
+	"//": "Sensor 1 reads from ADC_6 at 100Hz",
 	"sensor 1": {
-		"interval_in_us": 30000,
+		"interval_in_us": 10000,
 		"input": "ADC_6",
 		"op": "null"
 	},
-	"//": "Sensor 2 does nothing at 50Hz",
+	"//": "Sensor 2 idle at 20Hz",
 	"sensor 2": {
 		"interval_in_us": 50000,
 		"input": "null",
 		"op": "null"
 	},
-	"//": "Sensor 3 does nothing at 16.6Hz",
-	"sensor 3": {
-		"interval_in_us": 60000,
-		"input": "null",
-		"op": "null"
-	},
-	"//": "Sensor 4 sums up 10 data from Sensor 1 at 3.33Hz",
+	"//": "Sensor 4 sums 10 data of Sensor 1 at 10Hz",
 	"sensor 4": {
-		"interval_in_us": 300000,
+		"interval_in_us": 100000,
 		"input": "sensor 1",
 		"op": "sum"
 	},
-	"//": "CPU prints data in Sensor 4's buffer collected during this period of CPU sleeping",
+	"//": "CPU prints 20 Sensor 4's data every 2s",
 	"CPU": {
-		"interval_in_us": 1500000,
+		"interval_in_us": 2000000,
 		"input": "sensor 4",
 		"op": "print"
 	}
