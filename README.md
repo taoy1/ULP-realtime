@@ -4,8 +4,8 @@ This repo provides an automation tool for creating real-time sensing ULP program
 
 First create a top folder, for example:
 ```
-mkdir ~/esp32
-cd ~/esp32
+mkdir ~/esp
+cd ~/esp
 ```
 
 Then clone the esp-idf and pycom repos forked and customized by taoy1:
