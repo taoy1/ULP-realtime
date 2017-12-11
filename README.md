@@ -86,6 +86,7 @@ Then enter PYCOM's ESP32 folder and build PYCOM, as instructed on https://github
 
 For example, to build LoPY for 868Hz regions:
 ```
+cd esp32
 make BOARD=LOPY TARGET=boot clean
 make BOARD=LOPY TARGET=boot
 make BOARD=LOPY LORA_BAND=USE_BAND_868 TARGET=app
