@@ -14,7 +14,23 @@ git clone https://github.com/taoy1/pycom-esp-idf
 git clone https://github.com/taoy1/pycom-micropython-sigfox
 ```
 
-If you just want to use ULP on PYCOM and manually write your ULP program, see the next section 'Write your ULP program'. If you want to use our automation tool to generate ULP program for you, see the section 'Auto generate ULP program'.
+If you want to use our automation tool to generate ULP program for you, continue the next section 'Auto generate ULP program'. If you just want to use ULP on PYCOM and manually write your ULP program, jump to section 'Write your ULP program'. 
+
+### Auto generate ULP program
+
+In the top directory, git clone another repo:
+
+```
+git clone https://github.com/taoy1/ULP-realtime/.
+```
+
+To get started, you can try an example ULP application configuration. The examples folder provides some example configurations. You can use use them to generate ULP program:
+
+```
+python ulp_realtime.py examples/adc_sum.json
+```
+
+This will generate main.c and ulp_realtime.S in the output folder.
 
 ### Write your ULP program
 
@@ -25,20 +41,6 @@ git reset --hard 1f1cb1a
 ```
 In this commit (1f1cb1a), we have created a ESP32 component called ulptest as directory components/ulptest.
 If you change your mind, you can use ```git reset --hard 717a701``` to use the automation.
-
-### Auto generate ULP program
-
-In the top directory, git clone another repo:
-
-git clone https://github.com/taoy1/ULP-realtime/.
-
-To get started, you can try an example ULP application configuration. The examples folder provides some example configurations. You can use use them to generate ULP program:
-
-```
-python ulp_realtime.py examples/adc_sum.json
-```
-
-This will generate main.c and ulp_realtime.S in the output folder.
 
 ### Build the ESP32 components including ulp and ulptest
 
