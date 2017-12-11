@@ -32,6 +32,7 @@ python ulp_realtime.py examples/adc_sum.json
 ```
 
 This will generate main.c and ulp_realtime.S in the output folder.
+
 Now jump to section 'Build the ESP32 components including ulp and ulptest' to build your ULP program.
 
 ### Write your ULP program
