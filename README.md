@@ -27,6 +27,7 @@ git clone https://github.com/taoy1/ULP-realtime/
 To get started, you can try an example ULP application configuration. The examples folder provides some example configurations. You can use use them to generate ULP program:
 
 ```
+cd ULP-realtime
 python ulp_realtime.py examples/adc_sum.json
 ```
 
