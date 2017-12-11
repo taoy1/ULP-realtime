@@ -14,6 +14,8 @@ git clone https://github.com/taoy1/pycom-esp-idf
 git clone https://github.com/taoy1/pycom-micropython-sigfox
 ```
 
+Also set environmental variable IDF_PATH. For example, append ```export IDF_PATH=$HOME/esp/pycom-esp-idf/``` to your .zshrc or .bashrc and run ```source .zshrc``` or ```source .bashrc```.
+
 If you want to use our automation tool to generate ULP program for you, continue the next section 'Auto generate ULP program'. If you just want to use ULP on PYCOM and manually write your ULP program, jump to section 'Write your ULP program'. 
 
 ### Auto generate ULP program
@@ -66,6 +68,11 @@ Then run the script. It will build all components inside the hello_world project
 ```
 
 If there's any error in building the ESP32, you haven't fully installed/configured the ESP32 or ULP toolchain. Refer to https://dl.espressif.com/doc/esp-idf/latest/get-started/linux-setup.html to setup toolchain for ESP-IDF. Refer to http://esp-idf.readthedocs.io/en/latest/api-guides/ulp.html to setup toolchain for ULP.
+
+Also check the environmental variable $IDF_PATH is correct:
+```
+echo $IDF_PATH
+```
 
 ### Build PYCOM and flash
 
