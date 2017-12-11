@@ -67,7 +67,7 @@ Then run the script. It will build all components inside the hello_world project
 ./micropython-copy.sh
 ```
 
-If there's any error in building the ESP32, you haven't fully installed/configured the ESP32 or ULP toolchain. Refer to https://dl.espressif.com/doc/esp-idf/latest/get-started/linux-setup.html to setup toolchain for ESP-IDF. Refer to http://esp-idf.readthedocs.io/en/latest/api-guides/ulp.html to setup toolchain for ULP.
+If there's any error in building the ESP32, you haven't fully installed/configured the ESP32 or ULP toolchain. Refer to https://dl.espressif.com/doc/esp-idf/latest/get-started/linux-setup.html to setup toolchain for ESP-IDF. Refer to https://github.com/espressif/binutils-esp32ulp/wiki#downloads to setup toolchain for ULP.
 
 Also check the environmental variable $IDF_PATH is correct:
 ```
